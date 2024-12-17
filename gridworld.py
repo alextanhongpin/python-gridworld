@@ -29,8 +29,8 @@ class GridWorld:
 
         self.width = width
         self.height = height
-        self.player = None
         self.pieces = {}
+        self.player = None
         self.reset()
 
     @property
@@ -39,13 +39,13 @@ class GridWorld:
         for y in range(self.height):
             cols = []
             for x in range(self.width):
-                if (x, y) == self.player:
-                    if self.player in self.pieces:
-                        cols.append(Piece.OVERLAP)
-                    else:
-                        cols.append(Piece.PLAYER)
-                elif (x, y) in self.pieces:
-                    cols.append(self.pieces[(x, y)])
+                pos = (x, y)
+                if pos == self.player and self.player in self.pieces:
+                    cols.append(Piece.OVERLAP)
+                elif pos == self.player:
+                    cols.append(Piece.PLAYER)
+                elif pos in self.pieces:
+                    cols.append(self.pieces[pos])
                 else:
                     cols.append(Piece.EMPTY)
             rows.append(cols)
@@ -60,10 +60,10 @@ class GridWorld:
             direction in self.DIRECTIONS
         ), f"direction must be one of {', '.join(self.DIRECTIONS)}, got: {direction}"
 
-        x, y = self.player
+        px, py = self.player
         dx, dy = self.MOVES[self.DIRECTIONS.index(direction)]
-        nx, ny = x + dx, y + dy
-        if nx < 0 or nx >= self.width or ny < 0 or ny >= self.height:
+        nx, ny = px + dx, py + dy
+        if not self.is_in_boundary(nx, ny):
             return 0
 
         self.player = nx, ny
@@ -109,20 +109,23 @@ class GridWorld:
 
         visited = set()
         while queue:
-            head, queue = queue[0], queue[1:]
-            if head in visited:
+            p = queue.pop(0)
+            if p in visited:
                 continue
-            visited.add(head)
-            p = pieces.get(head, Piece.EMPTY)
-            if p == Piece.GOAL:
-                return True
-            if p == Piece.WALL or p == Piece.PIT:
-                continue
-            x, y = head
-            for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
-                nx = x + dx
-                ny = y + dy
-                if nx < 0 or nx >= self.width or ny < 0 or ny >= self.height:
+            visited.add(p)
+            match pieces.get(p, Piece.EMPTY):
+                case Piece.GOAL:
+                    return True
+                case Piece.WALL, Piece.PIT:
+                    continue
+            px, py = p
+            for dx, dy in self.MOVES:
+                nx = px + dx
+                ny = py + dy
+                if not self.is_in_boundary(nx, ny):
                     continue
                 queue.append((nx, ny))
         return False
+
+    def is_in_boundary(self, x, y):
+        return 0 <= x < self.width and 0 <= y < self.height
