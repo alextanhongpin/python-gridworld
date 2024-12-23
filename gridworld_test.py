@@ -3,14 +3,13 @@ from gridworld import GridWorld, Piece
 
 
 def test_init():
-    env = GridWorld(2, 2)
-    assert env.width == 2
-    assert env.height == 2
+    env = GridWorld(2)
+    assert env.size == 2
     assert len(env.pieces) == 4
 
 
 def test_move():
-    env = GridWorld(2, 2)
+    env = GridWorld(2)
     env.pieces = {
         Piece.PLAYER: (0, 0),
         Piece.GOAL: (1, 0),
@@ -34,7 +33,7 @@ def test_move():
 
 
 def test_render():
-    env = GridWorld(2, 2)
+    env = GridWorld(2)
     env.pieces = {
         Piece.PLAYER: (0, 0),
         Piece.GOAL: (1, 0),

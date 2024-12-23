@@ -31,11 +31,9 @@ class GridWorld:
     }
     PIECES = [Piece.GOAL, Piece.PIT, Piece.WALL, Piece.PLAYER]
 
-    def __init__(self, width, height):
-        assert width >= 2 and height >= 2, "width and height must be at least 2"
-
-        self.width = width
-        self.height = height
+    def __init__(self, size=2):
+        assert size >= 2, "size must be at least 2"
+        self.size = size
         self.pieces = {}
         self.reset()
 
@@ -43,9 +41,9 @@ class GridWorld:
     def board(self):
         player, others = self.scan(self.pieces)
         rows = []
-        for y in range(self.height):
+        for y in range(self.size):
             cols = []
-            for x in range(self.width):
+            for x in range(self.size):
                 pos = (x, y)
                 if pos == player and player in others:
                     cols.append(Piece.OVERLAP)
@@ -97,12 +95,12 @@ class GridWorld:
                 break
 
     def random_coords(self, n: int):
-        assert n <= self.width * self.height, "n must be less than the number of tiles"
+        assert n <= self.size * self.size, "n must be less than the number of tiles"
 
         coords = set[tuple[int, int]]()
         while len(coords) != n:
-            x = random.randrange(0, self.width)
-            y = random.randrange(0, self.height)
+            x = random.randrange(0, self.size)
+            y = random.randrange(0, self.size)
             coords.add((x, y))
 
         return list(coords)
@@ -137,7 +135,7 @@ class GridWorld:
 
     def is_in_boundary(self, coords):
         x, y = coords
-        return 0 <= x < self.width and 0 <= y < self.height
+        return 0 <= x < self.size and 0 <= y < self.size
 
     def scan(self, pieces: dict[Piece, Coords]) -> tuple[Coords, dict[Coords, Piece]]:
         player = pieces[Piece.PLAYER]
