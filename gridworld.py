@@ -19,17 +19,22 @@ class Direction(StrEnum):
     RIGHT = "r"
 
 
-Coords = tuple[int, int]
+
+Coords = complex
 
 
 class GridWorld:
     MOVES = {
-        Direction.UP: (0, -1),
-        Direction.DOWN: (0, 1),
-        Direction.LEFT: (-1, 0),
-        Direction.RIGHT: (1, 0),
+        Direction.UP: complex(0, -1),
+        Direction.DOWN: complex(0, 1),
+        Direction.LEFT: complex(-1, 0),
+        Direction.RIGHT: complex(1, 0),
     }
     PIECES = [Piece.GOAL, Piece.PIT, Piece.WALL, Piece.PLAYER]
+    REWARDS = {
+        Piece.GOAL: +10,
+        Piece.PIT: -10,
+    }
 
     def __init__(self, size=2):
         assert size >= 2, "size must be at least 2"
@@ -44,7 +49,7 @@ class GridWorld:
         for y in range(self.size):
             cols = []
             for x in range(self.size):
-                pos = (x, y)
+                pos = complex(x, y)
                 if pos == player and player in others:
                     cols.append(Piece.OVERLAP)
                 elif pos == player:
@@ -61,30 +66,24 @@ class GridWorld:
             print("".join(rows))
 
     def move(self, direction: Direction) -> int:
+        """
+        Move the player in the given direction and return the reward.
+        Every non-winning move has a reward of -1.
+        Goal has a reward of +10, pit has a reward of -10.
+        Player cannot step on the wall or outside of the boundary.
+        """
+
         assert (
             direction in self.MOVES
         ), f"direction must be one of {', '.join(self.MOVES.keys())}, got: {direction}"
 
-        player, others = self.scan(self.pieces)
-        px, py = player
-        dx, dy = self.MOVES[direction]
-        nx, ny = px + dx, py + dy
-        if not self.is_in_boundary((nx, ny)):
-            return 0
+        curr, others = self.scan(self.pieces)
+        next = self.MOVES[direction] + curr
+        if not self.is_in_boundary(next) or others.get(next) == Piece.WALL:
+            return -1
 
-        self.pieces[Piece.PLAYER] = (nx, ny)
-
-        if (nx, ny) in others:
-            match others[(nx, ny)]:
-                case Piece.GOAL:
-                    return +10
-                case Piece.PIT:
-                    return -10
-                case Piece.WALL:
-                    return -5
-                case _:
-                    return -1
-        return -1
+        self.pieces[Piece.PLAYER] = next
+        return self.REWARDS.get(others.get(next), -1) 
 
     def reset(self):
         while True:
@@ -97,11 +96,11 @@ class GridWorld:
     def random_coords(self, n: int):
         assert n <= self.size * self.size, "n must be less than the number of tiles"
 
-        coords = set[tuple[int, int]]()
+        coords = set[Coords]()
         while len(coords) != n:
             x = random.randrange(0, self.size)
             y = random.randrange(0, self.size)
-            coords.add((x, y))
+            coords.add(complex(x, y))
 
         return list(coords)
 
@@ -115,27 +114,24 @@ class GridWorld:
 
         visited = set()
         while queue:
-            p = queue.pop(0)
-            if p in visited:
+            curr = queue.pop(0)
+            if curr in visited:
                 continue
-            visited.add(p)
-            match pieces.get(p, Piece.EMPTY):
+            visited.add(curr)
+            match pieces.get(curr, Piece.EMPTY):
                 case Piece.GOAL:
                     return True
                 case Piece.WALL, Piece.PIT:
                     continue
-            px, py = p
-            for dx, dy in self.MOVES.values():
-                nx = px + dx
-                ny = py + dy
-                if not self.is_in_boundary((nx, ny)):
+            for move in self.MOVES.values():
+                next = curr + move
+                if not self.is_in_boundary(next):
                     continue
-                queue.append((nx, ny))
+                queue.append(next)
         return False
 
-    def is_in_boundary(self, coords):
-        x, y = coords
-        return 0 <= x < self.size and 0 <= y < self.size
+    def is_in_boundary(self, coords: Coords):
+        return 0 <= coords.real < self.size or 0 <= coords.imag < self.size
 
     def scan(self, pieces: dict[Piece, Coords]) -> tuple[Coords, dict[Coords, Piece]]:
         player = pieces[Piece.PLAYER]

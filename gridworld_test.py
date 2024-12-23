@@ -11,33 +11,33 @@ def test_init():
 def test_move():
     env = GridWorld(2)
     env.pieces = {
-        Piece.PLAYER: (0, 0),
-        Piece.GOAL: (1, 0),
+        Piece.PLAYER: complex(0, 0),
+        Piece.GOAL: complex(1, 0),
     }
     assert env.move("r") == 10
 
     env.pieces = {
-        Piece.PLAYER: (0, 0),
-        Piece.PIT: (1, 0),
+        Piece.PLAYER: complex(0, 0),
+        Piece.PIT: complex(1, 0),
     }
     assert env.move("r") == -10
 
     env.pieces = {
-        Piece.PLAYER: (0, 0),
-        Piece.WALL: (1, 0),
+        Piece.PLAYER: complex(0, 0),
+        Piece.WALL: complex(1, 0),
     }
-    assert env.move("r") == -5
+    assert env.move("r") == -1
 
-    env.pieces = {Piece.PLAYER: (0, 0)}
+    env.pieces = {Piece.PLAYER: complex(0, 0)}
     assert env.move("r") == -1
 
 
 def test_render():
     env = GridWorld(2)
     env.pieces = {
-        Piece.PLAYER: (0, 0),
-        Piece.GOAL: (1, 0),
-        Piece.PIT: (1, 1),
-        Piece.WALL: (0, 1),
+        Piece.PLAYER: complex(0, 0),
+        Piece.GOAL: complex(1, 0),
+        Piece.PIT: complex(1, 1),
+        Piece.WALL: complex(0, 1),
     }
     assert env.board == [[Piece.PLAYER, Piece.GOAL], [Piece.WALL, Piece.PIT]]
