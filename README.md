@@ -13,7 +13,7 @@ $ poetry build
 Import:
 
 ```bash
-poetry add https://github.com/alextanhongpin/python_gridworld.git
+poetry add git+https://github.com/alextanhongpin/python_gridworld.git
 ```
 
 ```python
