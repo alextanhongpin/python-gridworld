@@ -19,7 +19,6 @@ class Direction(StrEnum):
     RIGHT = "r"
 
 
-
 Coords = complex
 
 
@@ -83,7 +82,7 @@ class GridWorld:
             return -1
 
         self.pieces[Piece.PLAYER] = next
-        return self.REWARDS.get(others.get(next), -1) 
+        return self.REWARDS.get(others.get(next), -1)
 
     def reset(self):
         while True:

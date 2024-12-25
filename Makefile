@@ -6,3 +6,6 @@ test:
 
 lint:
 	poetry run black .
+
+build:
+	poetry build
