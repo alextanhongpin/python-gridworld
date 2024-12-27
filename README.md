@@ -17,6 +17,7 @@ poetry add git+https://github.com/alextanhongpin/python_gridworld.git
 ```
 
 ```python
+
 from gridworld import GridWorld
 env = GridWorld(4)
 env.reset(seed=None)
