@@ -1,4 +1,4 @@
-from env import Environment, Info, Reward, Terminated, Truncated, Observation
+from .env import Environment, Info, Reward, Terminated, Truncated, Observation
 from collections import defaultdict
 import random
 

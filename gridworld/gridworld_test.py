@@ -1,5 +1,5 @@
 # Add a pytest test case
-from gridworld import GridWorld
+from .gridworld import GridWorld
 
 
 def make():
